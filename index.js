@@ -12,6 +12,10 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
 
+app.get('/', (req, res) => {
+    res.send('Resume AI backend is live!');
+});
+
 app.post('/api/refine', async (req, res) => {
     try {
         const { messages } = req.body;
