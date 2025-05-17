@@ -17,36 +17,18 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/refine', async (req, res) => {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-
-    // 🔧 Enable flushing
-    res.flushHeaders?.();
-
     try {
         const { messages } = req.body;
 
-        const stream = await openai.chat.completions.create({
+        const response = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
-            messages,
-            stream: true,
+            messages
         });
 
-        for await (const chunk of stream) {
-            const content = chunk.choices?.[0]?.delta?.content;
-            if (content) {
-                res.write(`data: ${content}\n\n`);
-                res.flush?.(); // Safe optional chaining
-            }
-        }
-
-        res.write(`data: [DONE]\n\n`);
-        res.end();
+        res.json(response);
     } catch (err) {
-        console.error('Stream error:', err);
-        res.write(`data: [ERROR] ${err.message}\n\n`);
-        res.end();
+        console.error('OpenAI Error:', err);
+        res.status(500).json({ error: err.message });
     }
 });
 
