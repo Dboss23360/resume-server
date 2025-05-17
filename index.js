@@ -21,6 +21,9 @@ app.post('/api/refine', async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
+    // 🔧 Enable flushing
+    res.flushHeaders?.();
+
     try {
         const { messages } = req.body;
 
@@ -34,6 +37,7 @@ app.post('/api/refine', async (req, res) => {
             const content = chunk.choices?.[0]?.delta?.content;
             if (content) {
                 res.write(`data: ${content}\n\n`);
+                res.flush(); // 🧠 THIS is what makes it show up live
             }
         }
 
